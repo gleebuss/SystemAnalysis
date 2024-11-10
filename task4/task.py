@@ -18,7 +18,7 @@ def joint_entropy(matrix):
                 total_entropy += p * math.log2(p)
     return round(-total_entropy,2)
 
-def entropy_a(matrix):
+def entropy_b(matrix):
     column_sums = [0] * len(matrix[0])
     for row in matrix:
         for j in range(len(row)):
@@ -30,7 +30,7 @@ def entropy_a(matrix):
 
     return round(-total_entropy,2), column_sums
 
-def entropy_b(matrix):
+def entropy_a(matrix):
     total_entropy = 0
     row_sums = []
     for row in matrix:
@@ -50,6 +50,7 @@ def main():
     for i, row in enumerate(int_matrix):
         int_matrix[i] = [element / total_sum for element in row]
 
+    ## A - возрастные группы, B - категории
     share_entropy = joint_entropy(int_matrix)
     entropyA, row_sums = entropy_a(int_matrix)
     entropyB, column_sums = entropy_b(int_matrix)
