@@ -7,57 +7,30 @@ def get_matrix(str_json: str):
     clusters = [c if isinstance(c, list) else [c] for c in json.loads(str_json)]
     n = sum(len(cluster) for cluster in clusters)
 
-    matrix = [[1] * n for _ in range(n)]
+    matrix = np.ones((n,n), dtype=int)
 
     worse = []
     for cluster in clusters:
-        for worse_elem in worse:
-            for elem in cluster:
-                matrix[elem - 1][worse_elem - 1] = 0
-        for elem in cluster:
-            worse.append(int(elem))
+        for worse_element in worse:
+            for element in cluster:
+                matrix[element - 1][worse_element - 1] = 0
+        for element in cluster:
+            worse.append(int(element))
 
-    return np.array(matrix)
+    return matrix
 
-def get_clusters(matrix, est1, est2):
-    clusters = {}
+def get_clusters(matrix):
+    clusters = []
 
-    num_rows = len(matrix)
-    num_cols = len(matrix[0])
-    excluded_rows = set()
-    for row in range(num_rows):
-        if row + 1 in excluded_rows:
-            continue
-        current_cluster = [row + 1]
-        clusters[row + 1] = current_cluster
-        for col in range(row + 1, num_cols):
-            if matrix[row][col] == 0:
-                current_cluster.append(col + 1)
-                excluded_rows.add(col + 1)
+    n = len(matrix)
 
-    result = []
-    for k in clusters:
-        if not result:
-            result.append(clusters[k])
-            continue
-
-        for i, elem in enumerate(result):
-            sum_est1_elem = np.sum(est1[elem[0] - 1])
-            sum_est2_elem = np.sum(est2[elem[0] - 1])
-            sum_est1_k = np.sum(est1[k - 1])
-            sum_est2_k = np.sum(est2[k - 1])
-
-            if sum_est1_elem == sum_est1_k and sum_est2_elem == sum_est2_k:
-                for c in clusters[k]:
-                    result[i].append(c)
-                    break
-            if sum_est1_elem < sum_est1_k or sum_est2_elem < sum_est2_k:
-                result = result[:i] + clusters[k] + result[i:]
-                break
-
-        result.append(clusters[k])
-
-    final_result = [r[0] if len(r) == 1 else r for r in result]
+    for i in range(0, n):
+        for j in range(i+1, n):
+            if matrix[i][j] == 0 and matrix[j][i] == 0:
+                pair = sorted([i + 1, j + 1])
+                if pair not in clusters:
+                    clusters.append(pair)
+    final_result = [pair[0] if len(pair) == 1 else pair for pair in clusters]
     return str(final_result)
 
 
@@ -69,7 +42,7 @@ def task(string1:str , string2:str):
     matrix_and_t = np.multiply(np.transpose(matrix1), np.transpose(matrix2))
 
     matrix_or = np.maximum(matrix_and, matrix_and_t)
-    clusters = get_clusters(matrix_or, matrix1, matrix2)
+    clusters = get_clusters(matrix_or)
     return clusters
 
 def find_sublists(array_str):
